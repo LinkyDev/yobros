@@ -1,2 +1,2 @@
 # yobros
-&lt;script>alert("its a trap!");&lt;/script>
+[![Build Status](https://travis-ci.com/LinkyDev/yobros.svg?branch=master)](https://travis-ci.com/LinkyDev/yobros)
