@@ -1,6 +1,4 @@
 {
-    "database": {
-        "file-directory": "/srv/file-storage/testdir/",
-        "connection-string": ""
-    }
+    "file-directory": "/srv/file-storage/testdir/",
+    "connection-string": ""
 }

@@ -7,10 +7,8 @@ import (
 
 //Config holds temporary data in a struct from "server-config.json"
 type Config struct {
-	Database struct {
-		ServerDirectory  string `json:"file-directory"`
-		ConnectionString string `json:"connection-string"`
-	} `json:"database"`
+	ServerDirectory  string `json:"file-directory"`
+	ConnectionString string `json:"connection-string"`
 }
 
 //LoadConfig loads a config.json file and returns Config / Error
