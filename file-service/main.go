@@ -2,10 +2,12 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"os"
+
+	uuid "github.com/satori/go.uuid"
 )
 
 func main() {
@@ -15,61 +17,37 @@ func main() {
 
 func fileReaderHandler(w http.ResponseWriter, r *http.Request) {
 
-	var (
-		s          string
-		fileHeader string
-		byteSlice  []byte
-	)
+	fileRequest := r.Body
+	fmt.Println("fileRequst: ", fileRequest)
 
-	count := 0
-
-	if r.Method == http.MethodPost {
-		f, h, err := r.FormFile("usrfile")
-		if err != nil {
-			log.Println(err)
-			http.Error(w, "An error occurred while uploading the file! ERROR:001\n", http.StatusBadGateway)
-			return
-		}
-		defer f.Close()
-		bs, err := ioutil.ReadAll(f)
-		if err != nil {
-			log.Println(err)
-			http.Error(w, "An error occurred while reading the file! ERROR:002\n", http.StatusInternalServerError)
-			return
-		}
-
-		fileHeader = h.Filename
-		log.Println(fileHeader)
-
-		byteSlice = bs
-		s = string(bs)
-
-		count++
-
-	}
-
-	w.Header().Set("CONTENT-TYPE", "text/html; charset=UTF-8")
-	fmt.Fprintf(w, `<form action="/files" method="post" enctype="multipart/form-data">
-		upload a file<br>
-		<input type="file" name="usrfile"><br>
-		<input type="submit">
-		</form><br>
-		<br>
-		<br>
-		<h1>%v</h1>`, s)
+	fileHeader := r.Header
+	fmt.Println("fileHeader: ", fileHeader)
 
 	config, _ := LoadConfig("server-config.json")
-	dir := config.Database.ServerDirectory
+	dir := config.ServerDirectory
+
+	u1 := uuid.Must(uuid.NewV4())
+	fmt.Printf("UUIDv4: %s\n", u1)
 
 	createDirectory(dir)
-	for fileHeader != "" && count < 2 {
-		createEmptyFile(fileHeader)
-		writeBytesToFile(fileHeader, byteSlice)
-		moveFile(fileHeader, dir)
+	createEmptyFile(u1.String())
 
-		count++
+	reader := fileRequest
+	p := make([]byte, 1)
+	for {
+		n, err := reader.Read(p)
+		if err == io.EOF {
+			writeBytesToFile(u1.String(), p[n-1:])
+			fmt.Println(string(p[n-1:]))
+			break
+		}
+		if err != nil {
+			log.Println(err)
+		}
+		writeBytesToFile(u1.String(), p[:n])
+		fmt.Println(string(p[:n]))
 	}
-
+	moveFile(u1.String(), dir)
 }
 
 func createDirectory(directoryPath string) {
@@ -106,7 +84,7 @@ func createEmptyFile(filename string) {
 func writeBytesToFile(filename string, bs []byte) {
 	file, err := os.OpenFile(
 		filename,
-		os.O_WRONLY|os.O_TRUNC|os.O_CREATE,
+		os.O_APPEND|os.O_WRONLY,
 		777,
 	)
 	if err != nil {
