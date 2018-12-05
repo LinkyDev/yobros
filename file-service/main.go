@@ -83,7 +83,7 @@ func createDirectory(directoryPath string) {
 }
 
 func moveFile(filename string, path string) {
-	err := os.Rename(filename, path)
+	err := os.Rename(filename, path+filename)
 	if err != nil {
 		log.Println(err)
 		log.Println("An error occurred while renaming the file directory! ERROR:004")
@@ -107,7 +107,7 @@ func writeBytesToFile(filename string, bs []byte) {
 	file, err := os.OpenFile(
 		filename,
 		os.O_WRONLY|os.O_TRUNC|os.O_CREATE,
-		0666,
+		777,
 	)
 	if err != nil {
 		log.Println("An error occurred while re-writing the file! ERROR:006/0")
