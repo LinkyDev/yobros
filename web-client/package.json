@@ -4,6 +4,9 @@
   "description": "the web client of the yobros file uploading service",
   "main": "src/html/index.html",
   "scripts": {
+    "start": "docker-compose",
+    "local-server": "PORT=\"8080\" PUBLIC_FOLDER=\"../public\" node src/server/index.js",
+    "local-server:no-env": "node src/server/index.js",
     "test": "cypress run src/e2e"
   },
   "repository": {
